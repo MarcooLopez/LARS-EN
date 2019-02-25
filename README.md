@@ -28,12 +28,12 @@ n <- nrow(X); p <- ncol(X)
 # Predictors are standardized to have sum(x_i^2)/n equals to one.
 y <- scale(y,center=T,scale=T)
 X <- scale(X,center=T,scale=F)
-normx <- apply(X0,2,function(x)sum(x^2))
+normx <- apply(X,2,function(x)sum(x^2))
 X <- scale(X,center=F,scale=sqrt(normx/(n)))
 
 # Calculating the variance and covariance matrices
-rhs <- as.vector(crossprod(X,y))/(n)
-C <- crossprod(X)/(n)
+rhs <- drop(crossprod(X,y))/n
+C <- crossprod(X)/n
 
 fm1 <- lars2(C,rhs,type="lasso")
 fm2 <- lars(X,y,type="lasso")
