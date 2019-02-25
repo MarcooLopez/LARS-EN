@@ -107,7 +107,6 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
     lambda  <-  lambda[seq(k)]
     dimnames(beta) <- list(paste(0:k),namesx)
 
-    beta <- scale(beta,FALSE,sdx)
     actions <- actions[seq(k)]
     netdf  <- sapply(actions,function(x)sum(sign(x)))
     df <-  cumsum(netdf)
