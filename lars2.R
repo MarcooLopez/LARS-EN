@@ -40,7 +40,6 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
             new <- inactive[new]
             for(inew in new){
                 R <- updateR(Gram[inew,inew],R,drop(Gram[inew,active]),Gram=TRUE,eps=eps)
-
                 if(attr(R,"rank")==length(active)){
                   nR <- seq(length(active))
                   R <- R[nR,nR,drop=FALSE]
