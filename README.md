@@ -11,7 +11,7 @@ The following is an example which includes a comparation with the 'glmnet' packa
 
 Simulated data will be used using a homemade function 'simData'.
 
-```
+```r
 rm(list=ls())
 
 library(lars)
@@ -32,7 +32,7 @@ n <- nrow(X0); p <- ncol(X0)
 ```
 
 ### Using predictors and response having mean zero and norm equal to n
-```{r}
+```r
 y <- scale(y0,center=TRUE,scale=TRUE)
 X <- scale(X0,center=TRUE,scale=TRUE)
 normx <- apply(X,2,function(x)sum(x^2))
@@ -57,7 +57,7 @@ levelplot(t(D),xlab="predictor j",ylab="Step k",
 ```
 
 ### Using predictors and response having mean zero and norm equal to n-1
-```{r}
+```r
 y <- scale(y0,center=TRUE,scale=TRUE)
 X <- scale(X0,center=TRUE,scale=TRUE)
 
