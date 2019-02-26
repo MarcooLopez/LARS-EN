@@ -16,7 +16,7 @@ rm(list=ls())
 
 library(lars)
 library(glmnet)
-library(levelplot)
+library(lattice)
 
 # Load lars2 function
 source(url("https://raw.githubusercontent.com/MarcooLopez/LARS-EN/master/lars2.R"))
