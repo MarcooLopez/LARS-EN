@@ -6,7 +6,7 @@ in the Elastic-Net regression considering a variance-covariance matrix (upon a c
 
 The code is a modification to the 'lars' function from the R-package LARS by Hastie and Efron.
 
-The following is an example which includes a comparation with the 'glmnet' package.
+The following is an example which includes a comparison with the 'glmnet' package.
 (so far it implements only the LARS-LASSO models).
 
 Simulated data will be used using a homemade function 'simData'.
@@ -24,14 +24,14 @@ source(url("https://raw.githubusercontent.com/MarcooLopez/LARS-EN/master/lars2.R
 # Load the function to simulate data
 source(url("https://raw.githubusercontent.com/MarcooLopez/LARS-EN/master/simu_data.R"))
 
-# Generate data with p=50 preductors and n=500 obsertvations
+# Generate data with p=250 predictors and n=1000 observations
 DATA <- simData(n=500,p=50,seed=123)
 X0 <- DATA$X
 y0 <- DATA$y
 n <- nrow(X0); p <- ncol(X0)
 ```
 
-### Using predictors and response having mean zero and norm equal to n
+### Using predictors and response having mean zero and norm equal to *n*
 ```r
 y <- scale(y0,center=TRUE,scale=TRUE)
 X <- scale(X0,center=TRUE,scale=TRUE)
@@ -56,7 +56,7 @@ levelplot(t(D),xlab="predictor j",ylab="Step k",
  main=expression('|'*beta[j]^lars*'('*lambda[k]*')-'*beta[j]^glmnet*'('*lambda[k]*')|'))
 ```
 
-### Using predictors and response having mean zero and norm equal to n-1
+### Using predictors and response having mean zero and norm equal to *n-1*
 ```r
 y <- scale(y0,center=TRUE,scale=TRUE)
 X <- scale(X0,center=TRUE,scale=TRUE)
@@ -77,6 +77,8 @@ rownames(D) <- NULL
 levelplot(t(D),xlab="predictor j",ylab="Step k",
  main=expression('|'*beta[j]^lars*'('*lambda[k]*')-'*beta[j]^glmnet*'('*lambda[k]*')|'))
 ```
+##
+Levelplot indicating the absolute pointwise difference of the 'betas' obtained by lars2 and glmnet at each step of the LARS-LASSO.
 
 <p align="center">
 <img src="https://github.com/MarcooLopez/LARS-EN/blob/master/levelplot_abs_diff.png" width="450">
