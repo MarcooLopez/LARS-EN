@@ -77,5 +77,3 @@ rownames(D) <- NULL
 levelplot(t(D),xlab="predictor j",ylab="Step k",
  main=expression('|'*beta[j]^lars*'('*lambda[k]*')-'*beta[j]^glmnet*'('*lambda[k]*')|'))
 ```
-
-```
