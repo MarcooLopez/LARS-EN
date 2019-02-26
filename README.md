@@ -79,5 +79,5 @@ levelplot(t(D),xlab="predictor j",ylab="Step k",
 ```
 
 <p align="center">
-<img src="https://github.com/MarcooLopez/LARS-EN/blob/master/levelplot_abs_diff.pdf" width="450">
+<img src="https://github.com/MarcooLopez/LARS-EN/blob/master/levelplot_abs_diff.png" width="450">
 </b>
