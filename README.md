@@ -26,7 +26,7 @@ source(url("https://raw.githubusercontent.com/MarcooLopez/LARS-EN/master/lars2.R
 source(url("https://raw.githubusercontent.com/MarcooLopez/LARS-EN/master/simu_data.R"))
 
 # Generate data with p=200 preductors and n=500 obsertvations
-DATA <- simData(n=500,p=200)
+DATA <- simData(n=500,p=200,seed=123)
 X <- DATA$X
 y <- DATA$y
 n <- nrow(X); p <- ncol(X)
