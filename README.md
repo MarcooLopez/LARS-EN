@@ -77,3 +77,7 @@ rownames(D) <- NULL
 levelplot(t(D),xlab="predictor j",ylab="Step k",
  main=expression('|'*beta[j]^lars*'('*lambda[k]*')-'*beta[j]^glmnet*'('*lambda[k]*')|'))
 ```
+
+<p align="center">
+<img src="https://github.com/MarcooLopez/LARS-EN/blob/master/levelplot_abs_diff.pdf" width="450">
+</b>
