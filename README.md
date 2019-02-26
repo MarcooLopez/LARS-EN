@@ -27,11 +27,12 @@ y <- diabetes$y
 n <- nrow(X); p <- ncol(X)
 
 # Standardizing variables.
-# Predictors are standardized to have sum(x_i^2)/n equals to one.
-y <- scale(y,center=T,scale=T)
-X <- scale(X,center=T,scale=F)
+# Both predictors and response are standardized to have sum(x_i^2)/n equals to one.
+y <- scale(y,center=TRUE,scale=TRUE)
+X <- scale(X,center=TRUE,scale=TRUE)
 normx <- apply(X,2,function(x)sum(x^2))
-X <- scale(X,center=F,scale=sqrt(normx/n))
+X <- scale(X,center=FALSE,scale=sqrt(normx/n))
+y <- scale(y,center=FALSE,scale=sqrt(sum(y^2)/n))
 
 # Calculating the variance and covariance matrices
 rhs <- drop(crossprod(X,y))/n
@@ -39,22 +40,22 @@ C <- crossprod(X)/n
 
 fm1 <- lars2(C,rhs,type="lasso")
 fm2 <- lars(X,y,type="lasso")
-fm3 <- glmnet(X,y,lambda=fm1$lambda,thresh=1E-12)
+fm3 <- glmnet(X,y,lambda=fm1$lambda[fm1$lambda>0.001],thresh=1E-10)
 
 #==============================================================
 D <- c()
 for(k in 1:min(nrow(fm1$beta),nrow(fm2$beta),ncol(fm3$beta))){
- tmp <- c(k,sum(abs(fm1$beta[k,]-fm2$beta[k,])),
-        sum(abs(fm1$beta[k,]-fm3$beta[,k])),
-        sum(abs(fm2$beta[k,]-fm3$beta[,k])))
+ tmp <- c(k,sum((fm1$beta[k,]-fm2$beta[k,])^2),
+        sum((fm1$beta[k,]-fm3$beta[,k])^2),
+        sum((fm2$beta[k,]-fm3$beta[,k])^2))
  D <- rbind(D,round(tmp,6))
 }
 colnames(D) <- c("betaj","lars2 vs lars","lars2 vs glmnet","lars vs glmnet")
 D <- melt(data.frame(D),id="betaj")
-ggplot(D,aes(x=betaj,y=value))+geom_point()+facet_wrap(~variable)
+ggplot(D,aes(x=betaj,y=value))+geom_point()+facet_wrap(~variable)+labs(y="sum(x-y)^2")
 
 # Print an specific subset
-k=90
+k=50
 cbind(LARS2=fm1$beta[k,],LARS=fm2$beta[k,],GLMNET=fm3$beta[,k])
 
 ```
