@@ -1,4 +1,8 @@
 # Last modification Feb-27-2019.   00:33:00 hrs
+# Adapted from 'lars' function in LARS package (Hastie & Efron)
+# Dependending on some functions from LARS package
+require(lars)
+
 lars2 <- function(XtX,Xty, type = c("lasso","lar"),
 verbose = FALSE, eps = .Machine$double.eps, max.steps,standardize=TRUE)
 {
@@ -73,7 +77,6 @@ verbose = FALSE, eps = .Machine$double.eps, max.steps,standardize=TRUE)
                 }
             }
         }else action <- -dropid
-
         Gi1 <- backsolve(R,backsolvet(R,Sign))
         A <- 1/sqrt(sum(Gi1*Sign))
         w <- A*Gi1
