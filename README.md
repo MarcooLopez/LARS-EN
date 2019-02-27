@@ -1,20 +1,18 @@
-# LARS-EN
-Calculate the regression coefficients for the Elastic-Net family
+# LARS2
+Calculate the regression coefficients for the L1-penalized regression problems.
 
 The algorithm will compute the regression coefficients for the whole path for the penalization parameters 
-in the Elastic-Net regression considering a variance-covariance matrix (upon a constant *k*) **C=X'X**/k for the (centered) predictors and a covariance (between the predictors and the response) vector **cov=X'y**/k.
+in the L1-penalized regression considering a variance-covariance matrix (upon a constant *k*) **C=X'X**/k for the (centered) predictors and a covariance (between the predictors and the response) vector **cov=X'y**/k.
 
 The code is a modification to the 'lars' function from the R-package LARS by Hastie and Efron.
 
 The following is an example which includes a comparison with the 'glmnet' package.
-(so far it implements only the LARS-LASSO models).
 
 Simulated data will be used using a homemade function 'simData'.
 
 ```r
 rm(list=ls())
 
-library(lars)
 library(glmnet)
 library(lattice)
 
