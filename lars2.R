@@ -1,14 +1,22 @@
-
-lars2 <- function(Gram,rhs, type = c("lasso","lar"),
-trace = FALSE, eps = .Machine$double.eps, max.steps)
+# Last modification Feb-27-2019.   00:33:00 hrs
+lars2 <- function(XtX,Xty, type = c("lasso","lar"),
+verbose = FALSE, eps = .Machine$double.eps, max.steps,standardize=TRUE)
 {
     call <- match.call()
     type <- match.arg(type)
-
-    nm <- dim(Gram)
+    nm <- dim(XtX)
     p <- nm[2]
     im <- inactive <- seq(p)
-    namesx <- dimnames(Gram)[[2]]
+    namesx <- dimnames(XtX)[[2]]
+    s.p <- nchar(p)
+    textPrint <- c(" Step","\tSec/Step","\tVariable")
+
+    if(standardize){
+      sdx <- sqrt(diag(XtX))
+      W <- replicate(p,1/sdx)*t(replicate(p,1/sdx))
+      XtX <- XtX*W
+      Xty <- Xty/sdx
+    }else sdx <- rep(1,p)
 
     ignores <- NULL
     if(missing(max.steps))  max.steps <- 8*p
@@ -23,13 +31,14 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
     Sign <- NULL
     R <- NULL
     k <- 0
+    time = proc.time()[3]
     while((k < max.steps) & (length(active) < (p-length(ignores))))
     {
         action <- NULL
-        Cov <- rhs[inactive]
+        Cov <- Xty[inactive]
         Cmax <- max(abs(Cov))
         if(Cmax < eps*100){
-            if(trace) cat("Max |corr| = 0; exiting...\n")
+            if(verbose) cat("Max |corr| = 0; exiting...\n")
             break
         }
         k <- k+1
@@ -39,35 +48,40 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
             Cov <- Cov[!new]
             new <- inactive[new]
             for(inew in new){
-                R <- updateR(Gram[inew,inew],R,drop(Gram[inew,active]),Gram=TRUE,eps=eps)
+                R <- updateR(XtX[inew,inew],R,drop(XtX[inew,active]),Gram=TRUE,eps=eps)
                 if(attr(R,"rank")==length(active)){
                   nR <- seq(length(active))
                   R <- R[nR,nR,drop=FALSE]
                   attr(R,"rank") <- length(active)
                   ignores <- c(ignores,inew)
                   action <- c(action,-inew)
-                  if(trace)
+                  if(verbose){
                     cat("LARS Step",k,":\t Variable", inew,"\tcollinear; dropped for good\n")
+                  }
                 }else{
                   if(first.in[inew] == 0) first.in[inew] <- k
                   active <- c(active,inew)
-                  Sign <- c(Sign,sign(rhs[inew]))
+                  Sign <- c(Sign,sign(Xty[inew]))
                   action <- c(action,inew)
-                  if(trace)
-                    cat("LARS Step", k, ":\t Variable",inew,"\tadded\n")
+                  if(verbose){
+                    cat("--------------------------------------------------------------\n")
+                    tmp <- proc.time()[3]
+                    cat(paste(textPrint,"=",c(sprintf("%*d",s.p,k),sprintf('%.*f',4,tmp-time),
+                      sprintf("%*d",s.p,inew))),"added\n")
+                    time <- tmp
+                  }
                 }
             }
         }else action <- -dropid
 
-        Gi1 <- backsolve(R,backsolvet(R,Sign)) # Ginv*1
-        dropouts <- NULL
+        Gi1 <- backsolve(R,backsolvet(R,Sign))
         A <- 1/sqrt(sum(Gi1*Sign))
         w <- A*Gi1
 
         if((length(active) >= (p-length(ignores)))){
             gamhat <- Cmax/A
         }else{
-            a <- drop(w %*% Gram[active, -c(active,ignores),drop=FALSE])
+            a <- drop(w %*% XtX[active, -c(active,ignores),drop=FALSE])
             gam <- c((Cmax-Cov)/(A-a),(Cmax+Cov)/(A+a))
             gamhat <- min(gam[gam > eps],Cmax/A)
         }
@@ -83,14 +97,19 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
         }
         beta[k+1,] <- beta[k,]
         beta[k+1,active] <- beta[k+1,active] + gamhat*w
-        rhs <- rhs-gamhat*Gram[,active,drop=FALSE]%*%w
+        Xty <- Xty - gamhat*XtX[,active,drop=FALSE]%*%w
         Gamrat <- c(Gamrat,gamhat/(Cmax/A))
         arc.length <- c(arc.length,gamhat)
         if(type == "lasso" && any(drops)){
             dropid <- seq(drops)[drops]
             for(id in rev(dropid)){
-                if(trace)
-                  cat("Lasso Step",k+1,":\t Variable",active[id],"\tdropped\n")
+                if(verbose){
+                  cat("--------------------------------------------------------------\n")
+                  tmp <- proc.time()[3]
+                  cat(paste(textPrint,"=",c(sprintf("%*d",s.p,k+1),sprintf('%.*f',4,tmp-time),
+                    sprintf("%*d",s.p,active[id]))),"dropped\n")
+                  time <- tmp
+                }
                 R <- downdateR(R,id)
             }
             dropid <- active[drops]
@@ -106,7 +125,7 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
     beta <- beta[seq(k+1), ,drop = FALSE]
     lambda  <-  lambda[seq(k)]
     dimnames(beta) <- list(paste(0:k),namesx)
-
+    beta <- scale(beta,FALSE,sdx)
     actions <- actions[seq(k)]
     netdf  <- sapply(actions,function(x)sum(sign(x)))
     df <-  cumsum(netdf)
@@ -114,7 +133,7 @@ trace = FALSE, eps = .Machine$double.eps, max.steps)
 
     object <- list(call=call,type=type,df=df,lambda=lambda,
         actions=actions,entry=first.in,Gamrat=Gamrat,
-        arc.length=arc.length,beta=beta)
+        arc.length=arc.length,beta=beta,sdx=sdx)
     class(object) <- "lars"
     object
 }
